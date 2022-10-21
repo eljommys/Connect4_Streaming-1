@@ -69,11 +69,6 @@ const print_grid = () => {
 	}
 }
 
-for (let y = 0; y < 6; y++) {
-	for (let x = 0; x < 7; x++)
-		grid[x][y] = 0;
-}
-
 let turn = 1;
 
 while (check_line() == 0) {
