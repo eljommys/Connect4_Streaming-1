@@ -21,25 +21,21 @@ const getReplies = async (conversationId) => {
 		url: "https://api.twitter.com/2/tweets/search/recent?tweet.fields=author_id&query=conversation_id:1581804042036002816",
 		method: 'GET',
 		body: {
-			"uniqueId": 1234
+			"uniqueId": 1235
 		}
 	};
 
 	const authHeader = OAuth1Helper.getAuthHeaderForRequest(request);
-	const response = await axios.get(request.url, {
-		headers: authHeader/* ,
-		params: {
-			"tweet.fields": "author_id",
-			"query": `conversation_id:${conversationId}`
-		} */
-	});
+	const response = await axios.get(request.url, {headers: authHeader});
 
 	return response;
 }
 
 const main = async () => {
-	//console.log(await getAllDirectMessages())
-	console.log(JSON.stringify(await getReplies("1581804042036002816")))
+	//const DMs = await getAllDirectMessages()
+	const replies = await getReplies("1581804042036002816");
+	//console.log(DMs.status, DMs.statusText)
+	console.log(replies.status/* , replies.statusText */)
 }
 
 main();
