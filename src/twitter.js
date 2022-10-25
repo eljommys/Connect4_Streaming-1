@@ -1,9 +1,35 @@
 const OAuth1Helper = require("./oauth")
 const axios = require("axios");
+const express = require('express');
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
+//const privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
+//const certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
 
-const getAllDirectMessages = async () => {
+const get_all_DMs = async () => {
 	const request = {
 		url: 'https://api.twitter.com/1.1/direct_messages/events/list.json?count=10',
+		method: 'GET',
+		body: {
+			"uniqueId": 1234
+		}
+	};
+
+	const authHeader = OAuth1Helper.getAuthHeaderForRequest(request);
+	const response = await axios.get(request.url, {headers: authHeader, responseType: 'stream'});
+
+	const stream = response.data;
+	stream.on('data', data => {
+		data = JSON.parse(data.toString())
+		console.log(data)
+	})
+	//return response;
+}
+
+const get_DM = async (gameId) => {
+	const request = {
+		url: `https://api.twitter.com/1.1/direct_messages/events/show.json?id=${gameId}`,
 		method: 'GET',
 		body: {
 			"uniqueId": 1234
@@ -16,16 +42,14 @@ const getAllDirectMessages = async () => {
 	return response;
 }
 
-const getReplies = async (conversationId) => {
+const get_replies = async (conversationId) => {
 	const url = `https://api.twitter.com/2/tweets/search/recent?tweet.fields=author_id&query=conversation_id:${conversationId}`
 
-	//const authHeader = OAuth1Helper.getAuthHeaderForRequest(request);
 	const response = await axios.get(url, {headers: {"Authorization": `Bearer ${process.env.BEARER_TOKEN}`}});
-
 	return response;
 }
 
-const postDM = async () => {
+const post_DM = async (recipientId, message) => {
 	const request = {
 		url: "https://api.twitter.com/1.1/direct_messages/events/new.json",
 		method: 'POST',
@@ -35,10 +59,10 @@ const postDM = async () => {
 				"type": "message_create",
 				"message_create": {
 					"target": {
-						"recipient_id": "1022383710"
+						"recipient_id": `${recipientId}`
 						},
 					"message_data": {
-						"text": "Hello World!"
+						"text": `${message}`
 					}
 				}
 			}
@@ -52,15 +76,19 @@ const postDM = async () => {
 }
 
 const main = async () => {
-	const DMs = await getAllDirectMessages()
-	const replies = await getReplies("1581804042036002816");
-	//const DM_post = await postDM()
+	const app = express();
+	const port = 8080;
+	//const httpServer = http.createServer()
+	//await get_all_DMs();
+	app.get('/', (req, res) => {
+		console.log("leel");
+	})
 
-	console.log(DMs.status, DMs.statusText)
-	console.log(replies.status, replies.statusText)
-	//console.log(DM_post)
+	app.listen(port, () => {
+		console.log(`Listening to ${port}`)
+	})
 }
 
-main();
+main()
 
-//exports.module = {}
+//exports.module = {get_all_DMs, get_DM, get_replies, post_DM}

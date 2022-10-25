@@ -4,6 +4,9 @@
     "axios-oauth-1.0a": "^0.3.6",
     "crypto": "^1.0.1",
     "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "http": "^0.0.1-security",
+    "https": "^1.0.0",
     "oauth-1.0a": "^2.2.6",
     "prompt-sync": "^4.2.0"
   }

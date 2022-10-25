@@ -1,6 +1,14 @@
 const prompt = require('prompt-sync')({sigint: true});
+const { post_DM } = require('./twitter');
 
-const grid = Array(7).fill(0).map(x => new Array(6).fill(0));
+const games = new Map();
+
+const new_game = (gameId) => {
+	games.set(gameId, {
+		grid: Array(7).fill(0).map(x => new Array(6).fill(0)),
+		turn: 1
+	})
+}
 
 //	DIRECTION => dir
 //	0	1	2
@@ -63,13 +71,15 @@ const insert_chip = (x, turn) => {
 	return false;
 }
 
-const print_grid = () => {
+const print_grid = (gameId, grid) => {
 	for (let y = 5; y >= 0; y--) {
-		console.log(`|${grid[0][y]}|${grid[1][y]}|${grid[2][y]}|${grid[3][y]}|${grid[4][y]}|${grid[5][y]}|${grid[6][y]}|`);
+		const message = `|${grid[0][y]}|${grid[1][y]}|${grid[2][y]}|${grid[3][y]}|${grid[4][y]}|${grid[5][y]}|${grid[6][y]}|`;
+		post_DM(gameId, message)
+		console.log(message);
 	}
 }
 
-let turn = 1;
+/* let turn = 1;
 
 while (check_line() == 0) {
 	turn *= -1;
@@ -89,4 +99,27 @@ while (check_line() == 0) {
 
 console.log(turn == 1 ? "Blue wins": "Red wins");
 print_grid();
-process.exit();
+process.exit(); */
+
+const connect4 = (gameId) => {
+	let retry = true;
+	const game = games.get(gameId);
+
+	while (retry == true)
+		game.turn *= -1;
+
+		console.log(game.turn == 1 ? "Blue's turn" : "Red's turn");
+		print_grid(gameId, game.grid);
+
+		let input = prompt("Select a column:");
+
+		if (insert_chip(parseInt(input), 1 + (game.turn + 1) / 2) == false) {
+			console.log("\ninvalid\n");
+			game.turn *= -1;
+		} else {
+			retry = false;
+			console.log("\n========================\n");
+		}
+}
+
+module.exports = connect4;
